@@ -3,10 +3,12 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  Provide drivers information in the forum
-// @author       You
+// @author       eXenZa
 // @match        https://forums.iracing.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=iracing.com
 // @grant        none
+// @downloadURL  https://raw.githubusercontent.com/exenza/irforumstats/main/irforumstats.js
+// @updateURL    https://raw.githubusercontent.com/exenza/irforumstats/main/irforumstats.js
 // ==/UserScript==
 
 (function() {

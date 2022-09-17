@@ -42,7 +42,7 @@
             var road=driver.member_info.licenses[1].group_name
             road+=" "+driver.member_info.licenses[1].safety_rating
             road+=" "+driver.member_info.licenses[1].irating
-            author_info[x].insertAdjacentHTML('beforeend',"<div style='color:lightgrey;font-weight:bold;'>Oval: ["+oval+"] - Dirt Oval: ["+dirt_oval+"] - Dirt Road: ["+dirt_road+"] - Road: ["+road+"]</div>")
+            author_info[x].insertAdjacentHTML('beforeend',"<div style='color:lightgrey;font-weight:bold;'>"+driver.member_info.club_name+" > Oval: ["+oval+"] - Dirt Oval: ["+dirt_oval+"] - Dirt Road: ["+dirt_road+"] - Road: ["+road+"]</div>")
             x++
         }
     }

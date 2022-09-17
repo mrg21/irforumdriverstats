@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.2.1
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -49,7 +49,9 @@
             var thisyear=new Date().getFullYear()
             years=Number(thisyear)-Number(years[0])
             irstats+=driver.member_info.club_name+" - "+years+" years ("+driver.member_info.member_since+")"
+            if(driver.recent_events.length>0){
             irstats+='<br>Most recent '+driver.recent_events[0].event_name+' ('+driver.recent_events[0].event_type+') at '+driver.recent_events[0].track.track_name+' on the '+driver.recent_events[0].car_name
+            }
             irstats+="<br>Oval: "+getlicense(driver, 0)+" - Dirt Oval: "+getlicense(driver, 2)+" /-/ Dirt Road: "+getlicense(driver, 3)+" - Road: "+getlicense(driver, 1)
             author_info[x].insertAdjacentHTML('beforeend',"<div style='color:"+setcolor()+";font-weight:bold;'>"+irstats+"</div>")
             x++

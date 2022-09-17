@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -23,26 +23,35 @@
      names.push(name.firstChild.data);
     }
 
+    function setcolor(){
+        if(document.getElementsByTagName('html')[0].outerHTML.split('data-iracing-forums-user-color-scheme="dark"').length>1){
+            return "lightgrey"
+        } else {
+            return "black"
+        }
+    }
+
+        console.log(setcolor())
+
+    function getlicense(driver, i){
+            var license=driver.member_info.licenses[i].group_name.replace('Class ', '')
+            license=license.replace('Rookie', 'R')
+            license+=driver.member_info.licenses[i].safety_rating
+            license+=" "+driver.member_info.licenses[i].irating
+            return license
+    }
+
     function render(data, author_info){
         var x=0
         for (const driver of data){
-            //Oval
-            var oval=driver.member_info.licenses[0].group_name
-            oval+=" "+driver.member_info.licenses[0].safety_rating
-            oval+=" "+driver.member_info.licenses[0].irating
-            //Dirt Oval
-            var dirt_oval=driver.member_info.licenses[2].group_name
-            dirt_oval+=" "+driver.member_info.licenses[2].safety_rating
-            dirt_oval+=" "+driver.member_info.licenses[2].irating
-            //Dirt Road
-            var dirt_road=driver.member_info.licenses[3].group_name
-            dirt_road+=" "+driver.member_info.licenses[3].safety_rating
-            dirt_road+=" "+driver.member_info.licenses[3].irating
-            //Road
-            var road=driver.member_info.licenses[1].group_name
-            road+=" "+driver.member_info.licenses[1].safety_rating
-            road+=" "+driver.member_info.licenses[1].irating
-            author_info[x].insertAdjacentHTML('beforeend',"<div style='color:lightgrey;font-weight:bold;'>"+driver.member_info.club_name+" > Oval: ["+oval+"] - Dirt Oval: ["+dirt_oval+"] - Dirt Road: ["+dirt_road+"] - Road: ["+road+"]</div>")
+            var irstats=''
+            var years=driver.member_info.member_since.split("-")
+            var thisyear=new Date().getFullYear()
+            years=Number(thisyear)-Number(years[0])
+            irstats+=driver.member_info.club_name+" - "+years+" years ("+driver.member_info.member_since+")"
+            irstats+='<br>Most recent '+driver.recent_events[0].event_name+' ('+driver.recent_events[0].event_type+') at '+driver.recent_events[0].track.track_name+' on the '+driver.recent_events[0].car_name
+            irstats+="<br>Oval: "+getlicense(driver, 0)+" - Dirt Oval: "+getlicense(driver, 2)+" /-/ Dirt Road: "+getlicense(driver, 3)+" - Road: "+getlicense(driver, 1)
+            author_info[x].insertAdjacentHTML('beforeend',"<div style='color:"+setcolor()+";font-weight:bold;'>"+irstats+"</div>")
             x++
         }
     }

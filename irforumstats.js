@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.4.2
+// @version      0.4.3
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -62,26 +62,32 @@
 
             var license_weight
             var license_color
+            var license_text_color
             switch(license_class){
                 case "R":
                     license_weight=0
                     license_color="red"
+                    license_text_color="lightgrey"
                     break;
                 case "D":
                     license_weight=1000+Number(license_ir)
                     license_color="orange"
+                    license_text_color="lightgrey"
                     break;
                 case "C":
                     license_weight=1500+Number(license_ir)
                     license_color="yellow"
+                    license_text_color="darkgrey"
                     break;
                 case "B":
                     license_weight=2000+Number(license_ir)
                     license_color="green"
+                    license_text_color="lightgrey"
                     break;
                 case "A":
                     license_weight=3000+Number(license_ir)
                     license_color="blue"
+                    license_text_color="lightgrey"
                     break;
                 default:
                     license_weight=5000000+Number(license_ir)
@@ -89,7 +95,7 @@
             }
 
 
-            licenses.push({"license_weight":license_weight, "license_category":license_category, "license_class":license_class, "license_sr":license_sr, "license_ir":license_ir, "license_color":license_color})
+            licenses.push({"license_weight":license_weight, "license_category":license_category, "license_class":license_class, "license_sr":license_sr, "license_ir":license_ir, "license_color":license_color, "license_text_color":license_text_color})
             licenses.sort((a,b) => b.license_weight - a.license_weight);
 
         }
@@ -99,7 +105,7 @@
               minor_licenses.push(" "+other_license.license_category+" "+other_license.license_class+other_license.license_sr+" "+other_license.license_ir)
             }
         })
-        return licenses[0].license_category+" <span style='background-color:"+licenses[0].license_color+"'>"+licenses[0].license_class+licenses[0].license_sr+" "+licenses[0].license_ir+"</span> <span style='font-size:8pt'>("+minor_licenses+" )</span>"
+        return licenses[0].license_category+" <span style='background-color:"+licenses[0].license_color+";color:"+licenses[0].license_text_color+";'>"+licenses[0].license_class+licenses[0].license_sr+" "+licenses[0].license_ir+"</span> <span style='font-size:8pt'>("+minor_licenses+" )</span>"
     }
 
     function render(data, author_info){

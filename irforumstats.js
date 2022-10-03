@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.4.1
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -68,26 +68,26 @@
                     license_color="red"
                     break;
                 case "D":
-                    license_weight=100
+                    license_weight=10000+Number(license_ir)
                     license_color="orange"
                     break;
                 case "C":
-                    license_weight=250
+                    license_weight=25000+Number(license_ir)
                     license_color="yellow"
                     break;
                 case "B":
-                    license_weight=400
+                    license_weight=40000+Number(license_ir)
                     license_color="green"
                     break;
                 case "A":
-                    license_weight=600
+                    license_weight=60000+Number(license_ir)
                     license_color="blue"
                     break;
                 default:
-                    license_weight=50000
+                    license_weight=5000000+Number(license_ir)
 
             }
-            license_weight+=(license_ir*license_sr)
+
 
             licenses.push({"license_weight":license_weight, "license_category":license_category, "license_class":license_class, "license_sr":license_sr, "license_ir":license_ir, "license_color":license_color})
             licenses.sort((a,b) => b.license_weight - a.license_weight);

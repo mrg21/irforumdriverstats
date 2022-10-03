@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.4.1
+// @version      0.4.2
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -68,19 +68,19 @@
                     license_color="red"
                     break;
                 case "D":
-                    license_weight=10000+Number(license_ir)
+                    license_weight=1000+Number(license_ir)
                     license_color="orange"
                     break;
                 case "C":
-                    license_weight=25000+Number(license_ir)
+                    license_weight=1500+Number(license_ir)
                     license_color="yellow"
                     break;
                 case "B":
-                    license_weight=40000+Number(license_ir)
+                    license_weight=2000+Number(license_ir)
                     license_color="green"
                     break;
                 case "A":
-                    license_weight=60000+Number(license_ir)
+                    license_weight=3000+Number(license_ir)
                     license_color="blue"
                     break;
                 default:

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.3.2
+// @version      0.4
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -35,12 +35,71 @@
         }
     }
 
-    function getlicense(driver, i){
-        var license=driver.member_info.licenses[i].group_name.replace('Class ', '')
-        license=license.replace('Rookie', 'R')
-        license+=driver.member_info.licenses[i].safety_rating
-        license+=" "+driver.member_info.licenses[i].irating
-        return license
+    function getlicense(driver){
+        var license = ""
+        var licenses = []
+        for(let i = 0; i<=3; i++){
+            var license_class=driver.member_info.licenses[i].group_name.replace('Class ', '')
+            license_class=license_class.replace('Rookie', 'R')
+            var license_sr=driver.member_info.licenses[i].safety_rating
+            var license_ir=" "+driver.member_info.licenses[i].irating
+
+            var license_category
+            switch(i){
+                case 0:
+                    license_category="Oval"
+                    break;
+                case 1:
+                    license_category="Road"
+                    break;
+                case 2:
+                    license_category="Dirt Oval"
+                    break;
+                case 3:
+                    license_category="Dirt Road"
+                    break;
+            }
+
+            var license_weight
+            var license_color
+            switch(license_class){
+                case "R":
+                    license_weight=0
+                    license_color="red"
+                    break;
+                case "D":
+                    license_weight=100
+                    license_color="orange"
+                    break;
+                case "C":
+                    license_weight=250
+                    license_color="yellow"
+                    break;
+                case "B":
+                    license_weight=400
+                    license_color="green"
+                    break;
+                case "A":
+                    license_weight=600
+                    license_color="blue"
+                    break;
+                default:
+                    license_weight=50000
+
+            }
+            license_weight+=(license_ir*license_sr)
+
+            licenses.push({"license_weight":license_weight, "license_category":license_category, "license_class":license_class, "license_sr":license_sr, "license_ir":license_ir, "license_color":license_color})
+            licenses.sort((a,b) => b.license_weight - a.license_weight);
+
+        }
+        var minor_licenses=[]
+        licenses.forEach((other_license, index) => {
+            if (index>0){
+              minor_licenses.push(" "+other_license.license_category+" "+other_license.license_class+other_license.license_sr+" "+other_license.license_ir)
+            }
+        })
+        return licenses[0].license_category+" <span style='background-color:"+licenses[0].license_color+"'>"+licenses[0].license_class+licenses[0].license_sr+" "+licenses[0].license_ir+"</span> <span style='font-size:8pt'>("+minor_licenses+" )</span>"
     }
 
     function render(data, author_info){
@@ -70,9 +129,10 @@
                 } else {
                     irstats+="<br>No recent events."
                 }
-                irstats+="<br>Oval: "+getlicense(driver_stats, 0)+" - Dirt Oval: "+getlicense(driver_stats, 2)+" /-/ Dirt Road: "+getlicense(driver_stats, 3)+" - Road: "+getlicense(driver_stats, 1)
-            }catch{
+                irstats+="<br>"+getlicense(driver_stats)
+            }catch(error){
                 irstats="<br>iRacing Maintenance<br><br>"
+                console.log(error)
             }
             //Write HTML
             driver_name.insertAdjacentHTML('beforeend',"<div style='color:"+setcolor()+";font-weight:bold;'>"+irstats+"</div>")
@@ -83,6 +143,7 @@
     fetch('https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+names.join(','))
         .then((response) => response.json())
         .then((data) =>render(data, author_info));
+
     console.log("Fetched")
     var x = 0
     })();

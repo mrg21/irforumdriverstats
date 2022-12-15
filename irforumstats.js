@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.4.3
+// @version      0.5.0
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -137,7 +137,7 @@
                 }
                 irstats+="<br>"+getlicense(driver_stats)
             }catch(error){
-                irstats="<br>iRacing Maintenance<br><br>"
+                irstats="<br><a href=\"#\" onclick=\"window.open(\'https://support.iracing.com/support/solutions/31000076778\')\" style=\"color:"+setcolor()+";text-decoration: underline;\">iRacing Maintenance<a><br><br>"
                 console.log(error)
             }
             //Write HTML

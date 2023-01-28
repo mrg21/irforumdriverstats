@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.5.0
+// @version      0.6.0
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -13,6 +13,13 @@
 
 (function() {
     'use strict';
+    function diff_years(date) { // birthday is a date
+        var ageDifMs = Date.now() - date;
+        var ageDate = new Date(ageDifMs); // miliseconds from epoch
+        return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+
     var usernames = document.getElementsByClassName("Username")
     var author_info = document.getElementsByClassName("Author")
     var names = []
@@ -102,7 +109,7 @@
         var minor_licenses=[]
         licenses.forEach((other_license, index) => {
             if (index>0){
-              minor_licenses.push(" "+other_license.license_category+" "+other_license.license_class+other_license.license_sr+" "+other_license.license_ir)
+                minor_licenses.push(" "+other_license.license_category+" "+other_license.license_class+other_license.license_sr+" "+other_license.license_ir)
             }
         })
         return licenses[0].license_category+" <span style='background-color:"+licenses[0].license_color+";color:"+licenses[0].license_text_color+";'>"+licenses[0].license_class+licenses[0].license_sr+" "+licenses[0].license_ir+"</span> <span style='font-size:8pt'>("+minor_licenses+" )</span>"
@@ -120,10 +127,13 @@
             // Set driver stats
             var irstats=''
             try{
-                var years=driver_stats.member_info.member_since.split("-")
-                var thisyear=new Date().getFullYear()
-                years=Number(thisyear)-Number(years[0])
-                irstats+=driver_stats.member_info.club_name+" - "+years+" years ("+driver_stats.member_info.member_since+")"
+                var years=diff_years(new Date(driver_stats.member_info.member_since))
+                var yearspic=years
+                if(yearspic>10){
+                    yearspic=10
+                }
+                yearspic="https://ir-core-sites.iracing.com/members/member_images/badges/"+yearspic+"-year-badge.png"
+                irstats+="<img src='"+yearspic+"' style='vertical-align:middle' /> "+driver_stats.member_info.club_name
                 if(driver_stats.recent_events.length>0){
                     var results=""
                     if(driver_stats.recent_events[0].subsession_id > 0){

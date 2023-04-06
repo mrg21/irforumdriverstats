@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.6.0
+// @version      0.6.1
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -132,6 +132,7 @@
                 if(yearspic>10){
                     yearspic=10
                 }
+                if(yearspic==0){yearspic=1}
                 yearspic="https://ir-core-sites.iracing.com/members/member_images/badges/"+yearspic+"-year-badge.png"
                 irstats+="<img src='"+yearspic+"' style='vertical-align:middle' /> "+driver_stats.member_info.club_name
                 if(driver_stats.recent_events.length>0){

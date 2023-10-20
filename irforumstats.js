@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.6.1
+// @version      0.7
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -134,7 +134,7 @@
                 }
                 if(yearspic==0){yearspic=1}
                 yearspic="https://ir-core-sites.iracing.com/members/member_images/badges/"+yearspic+"-year-badge.png"
-                irstats+="<img src='"+yearspic+"' style='vertical-align:middle' /> "+driver_stats.member_info.club_name
+                irstats+="<img src='"+yearspic+"' style='vertical-align:middle' /> "+driver_stats.member_info.club_name+" - <a href=\"https://members.iracing.com/membersite/member/CareerStats.do?custid="+driver_stats.member_info.cust_id+"\" target=\"_blank\" style=\"color:"+setcolor()+"\">iRacing profile</a>"
                 if(driver_stats.recent_events.length>0){
                     var results=""
                     if(driver_stats.recent_events[0].subsession_id > 0){

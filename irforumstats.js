@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -92,7 +92,7 @@
                     license_text_color="lightgrey"
                     break;
                 case "A":
-                    license_weight=3000+Number(license_ir)
+                    license_weight=2500+Number(license_ir)
                     license_color="blue"
                     license_text_color="lightgrey"
                     break;

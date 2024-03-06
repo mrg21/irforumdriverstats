@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         irForum stats
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Provide drivers information in the forum
 // @author       eXenZa
 // @match        https://forums.iracing.com/*
@@ -45,28 +45,13 @@
     function getlicense(driver){
         var license = ""
         var licenses = []
-        for(let i = 0; i<=3; i++){
+        for(let i = 0; i<driver.member_info.licenses.length; i++){
             var license_class=driver.member_info.licenses[i].group_name.replace('Class ', '')
             license_class=license_class.replace('Rookie', 'R')
             var license_sr=driver.member_info.licenses[i].safety_rating
             var license_ir=" "+driver.member_info.licenses[i].irating
 
-            var license_category
-            switch(i){
-                case 0:
-                    license_category="Oval"
-                    break;
-                case 1:
-                    license_category="Road"
-                    break;
-                case 2:
-                    license_category="Dirt Oval"
-                    break;
-                case 3:
-                    license_category="Dirt Road"
-                    break;
-            }
-
+            var license_category=driver.member_info.licenses[i].category_name
             var license_weight
             var license_color
             var license_text_color

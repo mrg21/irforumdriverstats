@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.00_2024-04-07
+// @version      1.01_2024-04-14
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -120,7 +120,8 @@
                 driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span><br>';
                 driver_stats += '<span class="fwn">'+ driver_recent_events(member) + '</span>';
             }catch(error){
-                driver_stats = '<br>Driver stats error! <a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a><br>';
+                driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
+                console.log(names)
                 console.log(error)
             }
             //Write HTML

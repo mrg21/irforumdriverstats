@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.01_2024-04-14
+// @version      1.02_2024-04-18
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -25,7 +25,7 @@
         names.push(name.firstChild.data);
     }
     for (const author of author_info){
-        let driver_info = '<br>Loading stats...<br><br>';
+        let driver_info = 'Loading stats...<br>';
         let current_driver = author.getElementsByTagName('a')[0].innerText.replace('Loading\n\n', '');
         author.insertAdjacentHTML('beforeend', '<div class="loadingstats fwb">'+ driver_info +'</div>');
     }
@@ -64,14 +64,14 @@
         let infos_html = ''+
             // '<img src="https://ir-core-sites.iracing.com/members/member_images/world_cup/club_logos/club_'+
             // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
-            '<b class="fs110">'+ driver.member_info.club_name +' </b> &nbsp; '+
+            '<b>'+ driver.member_info.club_name +' </b> &nbsp; '+
             member_years +' years &nbsp; '+
             driver.follow_counts.followers +' Followers &nbsp; '+
             'Member since: '+ driver.member_info.member_since +' &nbsp; '+
             'ID: '+ driver.member_info.cust_id +' &nbsp; '+
             '<a target="_blank" href="https://members.iracing.com/membersite/member/CareerStats.do?custid='+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
             '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp" class="driver-link"> Results </a> &nbsp; '+
-            '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a> ';
+            '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a>';
         return infos_html;
     }
     function driver_recent_events(driver){
@@ -102,7 +102,7 @@
 			})
 			let recent_events_str = recent_events['RACE'].html + ' '+ recent_events['TIME TRIAL'].html +' '+ recent_events['HOSTED'].html +' '+ recent_events['LEAGUE'].html;
 			if (recent_events_str.replace(/\s/g, '') == '') { recent_events_str = recent_events['PRACTICE'].html };
-			recent_events_html += '<b class="fs110"> Recent: <b>'+ recent_events_str;
+			recent_events_html += '<b> Recent: <b><span class="fs90">'+ recent_events_str +'</span>';
 		} else {
 			recent_events_html += '<b class="fs110"> No recent events. <b>';
 		}

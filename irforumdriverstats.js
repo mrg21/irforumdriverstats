@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.02_2024-04-18
+// @version      1.03_2024-04-20
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -69,7 +69,7 @@
             driver.follow_counts.followers +' Followers &nbsp; '+
             'Member since: '+ driver.member_info.member_since +' &nbsp; '+
             'ID: '+ driver.member_info.cust_id +' &nbsp; '+
-            '<a target="_blank" href="https://members.iracing.com/membersite/member/CareerStats.do?custid='+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
+            '<a target="_blank" href="https://nyoom.app/search/'+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
             '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp" class="driver-link"> Results </a> &nbsp; '+
             '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a>';
         return infos_html;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.03_2024-04-20
+// @version      1.04_2024-04-21
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -100,8 +100,8 @@
 						'<span class="border777"> '+ recent_event.event_type[0] + recent_events[recent_event.event_type].count +' '+ event_dt_string +' '+ carname + event_pos +' &nbsp;</span></a> ';
 				}
 			})
-			let recent_events_str = recent_events['RACE'].html + ' '+ recent_events['TIME TRIAL'].html +' '+ recent_events['HOSTED'].html +' '+ recent_events['LEAGUE'].html;
-			if (recent_events_str.replace(/\s/g, '') == '') { recent_events_str = recent_events['PRACTICE'].html };
+			let recent_events_str = recent_events['RACE'].html +' '+ recent_events['HOSTED'].html +' '+ recent_events['LEAGUE'].html;
+			if (recent_events_str.replace(/\s/g, '') == '') { recent_events_str = recent_events['PRACTICE'].html +' '+ recent_events['TIME TRIAL'].html };
 			recent_events_html += '<b> Recent: <b><span class="fs90">'+ recent_events_str +'</span>';
 		} else {
 			recent_events_html += '<b class="fs110"> No recent events. <b>';

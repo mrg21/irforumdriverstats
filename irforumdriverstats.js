@@ -1,15 +1,18 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.05_2024-04-25
+// @version      1.06_2024-04-25
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
+// @downloadURL  https://raw.githubusercontent.com/mrg21/irforumdriverstats/main/irforumdriverstats.js
+// @updateURL    https://raw.githubusercontent.com/mrg21/irforumdriverstats/main/irforumdriverstats.js
 // ==/UserScript==
 
 // config
-const sort_licenses = 3 // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
+const sort_licenses = 3; // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
+const show_cpi = 1; // 0: off, 1: on
 
 const svg_d = {
     'oval': 'M18 7.5H6C4.34315 7.5 3 8.84315 3 10.5V11.2918C3 12.4281 3.64201 13.4669 4.65836 13.9751L7.30426 15.298C10.2603 16.776 13.7397 16.776 16.6957 15.298L19.3416 13.9751C20.358 13.4669 21 12.4281 21 11.2918V10.5C21 8.84315 19.6569 7.5 18 7.5ZM6 4.5H18C21.3137 4.5 24 7.18629 24 10.5V11.2918C24 13.5644 22.716 15.642 20.6833 16.6584L18.0374 17.9813C14.2368 19.8816 9.76324 19.8816 5.96262 17.9813L3.31672 16.6584C1.28401 15.642 0 13.5644 0 11.2918V10.5C0 7.18629 2.68629 4.5 6 4.5Z',
@@ -63,8 +66,11 @@ const svg_d = {
         let member_licenses=[]
         licenses.forEach((license, index) => {
             let license_icon = '<svg viewBox="0 0 24 24" class="ir-cat-svg"><path fill-rule="evenodd" clip-rule="evenodd" d="'+ svg_d[license.category] +'" fill="currentColor"></path></svg> ';
-            member_licenses.push('<span class="license-link license-color-'+ license.class +'">&nbsp;'+
-                license_icon +' &nbsp; &nbsp; &nbsp; &nbsp; '+ license.class + license.sr +' '+ license.ir +'&nbsp; CPI '+ license.cpi + '&nbsp;</span>')
+            let license_html = '<span class="license-link license-color-'+ license.class +'">&nbsp;'+ license_icon +' &nbsp; &nbsp; &nbsp; &nbsp; '+
+                license.class + license.sr +' '+ license.ir;
+            if (show_cpi) { license_html += '&nbsp; CPI '+ license.cpi; }
+            license_html += '&nbsp; </span>'
+            member_licenses.push(license_html)
         })
         return member_licenses.join('&nbsp; ');
     }
@@ -166,5 +172,6 @@ const svg_d = {
 		.fs100 { font-size:100%; }
 		.fs110 { font-size:110%; }
 		.border777 { border: 1px solid #777; border-radius: 6px; }
+        .ConversationMessage-content .ir-cat-svg {margin-top: -1px; height:1.9em; }
   `);
 })();

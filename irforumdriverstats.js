@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.10_2024-04-29
+// @version      1.11_2024-04-29
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -13,7 +13,7 @@
 // config
 const show_cpi = 1; // 0: off, 1: on
 const sort_licenses = 3; // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
-const show_max_recent_events = 5;
+const show_max_recent_events = 0;
 const show_recent_type = {
     race: 1, // 0: off, 1: on
     hosted: 1, // 0: off, 1: on, 2: only if no more major event
@@ -197,8 +197,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
             let driver_stats = '';
             try {
                 driver_stats += '<div class="fs90 dispflex" >'+ driver_licenses(member) + '</div>';
-                driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span><br>';
-                if (show_max_recent_events > 0) { driver_stats += '<span class="fwn">'+ driver_recent_events(member) + '</span>'; };
+                driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span>';
+                if (show_max_recent_events > 0) { driver_stats += '<br><span class="fwn">'+ driver_recent_events(member) + '</span>'; };
             } catch(error) {
                 driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
                 console.log(names);

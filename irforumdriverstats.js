@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.09_2024-04-29
+// @version      1.10_2024-04-29
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -88,12 +88,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
         let member_licenses=[]
         licenses.forEach((license, index) => {
             let license_icon = '<svg viewBox="0 0 24 24" class="ir-cat-svg"><path fill-rule="evenodd" clip-rule="evenodd" d="'+ svg_d[license.category] +'" fill="currentColor"></path></svg> ';
-            let license_html = '<span class="license-link license-color-'+ license.class +'">&nbsp;'+ license_icon +' &nbsp; &nbsp; &nbsp; &nbsp; '+
+            let license_html = '<div class="license-link license-color-'+ license.class +'">&nbsp;'+ license_icon +'&nbsp;'+
                 license.class + license.sr;
-            // if (window_portrait) { license_html += '<br>'; }
+            if (window_portrait) { license_html += '&nbsp;<br>&nbsp;'; }
             license_html += ' '+ license.ir;
             if (show_cpi) { license_html += '/'+ license.cpi; }
-            license_html += '&nbsp; </span>'
+            license_html += ' &nbsp; </div>'
             member_licenses.push(license_html)
         })
         return member_licenses.join('&nbsp; ');
@@ -105,12 +105,16 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
             // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
             '<b>'+ driver.member_info.club_name +' </b> &nbsp; '+
             member_years +' years &nbsp; '+
-            driver.follow_counts.followers +' Followers &nbsp; '+
-            'Member since: '+ driver.member_info.member_since +' &nbsp; '+
-            'ID: '+ driver.member_info.cust_id +' &nbsp; '+
-            '<a target="_blank" href="https://nyoom.app/search/'+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
-            '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp" class="driver-link"> Results </a> &nbsp; '+
-            '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a>';
+            driver.follow_counts.followers +' Followers &nbsp; ';
+        if (!window_portrait) {
+            infos_html += 'Member since: '+ driver.member_info.member_since +' &nbsp; ';
+            infos_html += 'ID: '+ driver.member_info.cust_id +' &nbsp; ';
+        }
+        infos_html += '<a target="_blank" href="https://nyoom.app/search/'+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; ';
+        if (!window_portrait) {
+            infos_html += '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp" class="driver-link"> Results </a> &nbsp; ';
+            infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a>';
+        }
         return infos_html;
     }
     function driver_recent_events(driver){
@@ -192,7 +196,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
             let member = data[current_driver];
             let driver_stats = '';
             try {
-                driver_stats += '<span class="fs90">'+ driver_licenses(member) + '</span><br>';
+                driver_stats += '<div class="fs90 dispflex" >'+ driver_licenses(member) + '</div>';
                 driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span><br>';
                 if (show_max_recent_events > 0) { driver_stats += '<span class="fwn">'+ driver_recent_events(member) + '</span>'; };
             } catch(error) {
@@ -218,20 +222,21 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
     }
     addGlobalStyle(`
 		.driver-link { color: inherit; font-size: inherit; /* text-decoration: underline; */ }
-		.license-link { border-radius: 6px; font-weight: bold; }
+		.license-link { border-radius: 6px; font-weight: bold; text-align: center; line-height: 1; margin-right: 2px; }
 		.license-color-R { border: 1px solid #E1251B; background-color: #F3A8A4; color: #5D1214; }
 		.license-color-D { border: 1px solid #FF6600; background-color: #FFC299; color: #692C09; }
 		.license-color-C { border: 1px solid #FFCC00; background-color: #FFEB99; color: #50410A; }
 		.license-color-B { border: 1px solid #33CC00; background-color: #ADEB99; color: #175509; }
 		.license-color-A { border: 1px solid #006EFF; background-color: #99C5FF; color: #032F6F; }
 		.license-color-P { border: 1px solid #828287; background-color: #CDCDCF; color: #37373F; }
-		.ir-cat-svg { width:2em; height:2em; position:absolute; margin-top:2px; }
+		.ir-cat-svg { height:2em; vertical-align: middle; }
 		.fwb { font-weight:bold; }
 		.fwn { font-weight:normal; }
 		.fs90 { font-size:90%; }
 		.fs100 { font-size:100%; }
 		.fs110 { font-size:110%; }
 		.border777 { border: 1px solid #777; border-radius: 6px; }
-        .ConversationMessage-content .ir-cat-svg {margin-top: -1px; height:1.9em; }
+        .dispflex {display: flex; }
+        .ConversationMessage-content .ir-cat-svg { margin-top: -1px; height:1.9em; }
   `);
 })();

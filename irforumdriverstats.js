@@ -18,8 +18,8 @@ const show_recent_type = {
     race: 1, // 0: off, 1: on
     hosted: 1, // 0: off, 1: on, 2: only if no more major event
     league: 1, // 0: off, 1: on, 2: only if no more major event
+    timetrial: 1, // 0: off, 1: on, 2: only if no more major event
     practice: 2, // 0: off, 1: on, 2: only if no more major event
-    timetrial: 2, // 0: off, 1: on, 2: only if no more major event
 };
 
 const svg_d = {
@@ -155,10 +155,13 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.2 < (docu
                     }
 				}
 			});
-            for (var i = 0; i < recent_events.show1.length && recent_events.show.length < show_max_recent_events; i++) {
-                recent_events.show.push(recent_events.show1[i]);
-            }
-            if (recent_events.show.lengt < 1) {
+            // console.log(driver.member_info.display_name);
+            // console.log(recent_events.show1.length);
+            if (recent_events.show1.length > 0) {
+                for (var i = 0; i < recent_events.show1.length && recent_events.show.length < show_max_recent_events; i++) {
+                    recent_events.show.push(recent_events.show1[i]);
+                }
+            } else {
                 for (var j = 0; j < recent_events.show2.length && recent_events.show.length < show_max_recent_events; j++) {
                     recent_events.show.push(recent_events.show2[j]);
                 }

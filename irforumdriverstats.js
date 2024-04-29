@@ -13,7 +13,7 @@
 // config
 const show_cpi = 1; // 0: off, 1: on
 const sort_licenses = 3; // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
-const show_max_recent_events = 0;
+const show_max_recent_events = 5;
 const show_recent_type = {
     race: 1, // 0: off, 1: on
     hosted: 1, // 0: off, 1: on, 2: only if no more major event

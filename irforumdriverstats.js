@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.12_2024-04-30
+// @version      1.15_2024-05-03
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -11,9 +11,10 @@
 // ==/UserScript==
 
 // config
-const show_cpi = 0; // 0: off, 1: on
+const show_cpi = 1; // 0: off, 1: on
 const sort_licenses = 3; // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
-const show_max_recent_events = 3;
+const show_max_recent_events = 5;
+const show_max_recent_cars = 5;
 const show_recent_type = {
     race: 1, // 0: off, 1: on
     hosted: 1, // 0: off, 1: on, 2: only if no more major event
@@ -34,16 +35,18 @@ let window_portrait = false;
 if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (document.documentElement.clientHeight, window.innerHeight || 0)) {
     window_portrait = true;
 };
+
 'use strict';
 (() => {
     let usernames = document.getElementsByClassName('Username')
-    let author_info = document.getElementsByClassName('Author')
+    let authors = document.getElementsByClassName('Author')
+    let author_wrap = document.getElementsByClassName('AuthorWrap')
     let cars_dict = cars_json2dict(cars_json);
     let names = []
     for (const name of usernames){
         names.push(name.firstChild.data);
     }
-    for (const author of author_info){
+    for (const author of authors){
         let driver_info = 'Loading stats...<br>';
         let current_driver = author.getElementsByTagName('a')[0].innerText.replace('Loading\n\n', '');
         author.insertAdjacentHTML('beforeend', '<div class="loadingstats fwb">'+ driver_info +'</div>');
@@ -64,6 +67,11 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             };
         };
         return dict;
+    }
+    function ArrayAddUniqueString(array, String) {
+        if (!array.includes(String)) {
+            array.push(String);
+        }
     }
     names = [...new Set(names)];
     function driver_licenses(driver){
@@ -106,22 +114,22 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             // '<img src="https://ir-core-sites.iracing.com/members/member_images/world_cup/club_logos/club_'+
             // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
             '<b>'+ driver.member_info.club_name +' </b> &nbsp; '+
-            member_years +' years &nbsp; '+
-            driver.follow_counts.followers +' Followers &nbsp; ';
+            '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
+            'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
+            '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
+            '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp"'+
+            ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
+            ' class="driver-link"> Results </a> &nbsp; ';
         if (!window_portrait) {
-            infos_html += 'Member since: '+ driver.member_info.member_since +' &nbsp; ';
-            infos_html += 'ID: '+ driver.member_info.cust_id +' &nbsp; ';
-        }
-        infos_html += '<a target="_blank" href="https://nyoom.app/search/'+ driver.member_info.cust_id +'" class="driver-link"> Web profile </a> &nbsp; ';
-        if (!window_portrait) {
-            infos_html += '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp" class="driver-link"> Results </a> &nbsp; ';
-            infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> JSON </a>';
+            infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> API </a> &nbsp; ';
         }
         return infos_html;
     }
-    function driver_recent_events(driver){
+    function driver_recent_events(driver) {
         let recent_events_html = '';
-        if (driver.recent_events.length > 0) {
+        let recent_cars_html = '';
+        if (driver && driver.recent_events.length > 0) {
+            console.log(driver);
 			let recent_events = {
 				race: [],
 				hosted: [],
@@ -132,8 +140,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 show2: [],
                 show: [],
 			};
+            let recent_cars = {
+                show1: [],
+                show2: [],
+                show: [],
+            };
 			let session_style = '';
-            let recent_events_tmp_html = '';
 			let url_subsession = 'https://members.iracing.com/membersite/member/EventResult.do?subsessionid=';
 			driver.recent_events.forEach((recent_event, index) => {
 				if (recent_event.subsession_id > 0) {
@@ -151,74 +163,133 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                         case 'practice': ; break;
                         case 'timetrial': ; break;
                     }
-                    let tmp_html = '<a target="_blank" href="'+ url_subsession + recent_event.subsession_id +'" class="driver-link"> &nbsp;'+
-						'<span class="border777"> <svg class="recent-svg"'+ svg_add[car.cat] +' '+ event_type1 +' '+ event_dt_string +' '+ carname + event_pos +'&nbsp</span></a>';
+                    let tmp_html = '<a target="_blank" href="'+ url_subsession + recent_event.subsession_id +'" class="driver-link"> &nbsp;';
+					tmp_html += '<span title="'+ recent_event.event_type +' '+ event_dt_string +' '+ recent_event.car_name +' @ '+ recent_event.track.track_name +' '+ event_pos +'" class="border777">';
+                    tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +' '+ event_type1 +' '+ event_dt_string +' '+ carname + event_pos +'&nbsp</span></a>';
                     recent_events[event_type].push(tmp_html);
                     if (show_recent_type[event_type] == 1) {
                         recent_events.show1.push(tmp_html);
+                        ArrayAddUniqueString(recent_cars.show1, carname);
                     } else if (show_recent_type[event_type] == 2) {
                         recent_events.show2.push(tmp_html);
+                        ArrayAddUniqueString(recent_cars.show2, carname);
                     }
 				}
 			});
             // console.log(driver.member_info.display_name);
             // console.log(recent_events.show1.length);
             if (recent_events.show1.length > 0) {
-                for (var i = 0; i < recent_events.show1.length && recent_events.show.length < show_max_recent_events; i++) {
+                for (let i = 0; i < recent_events.show1.length && recent_events.show.length < show_max_recent_events; i++) {
                     recent_events.show.push(recent_events.show1[i]);
                 }
             } else {
-                for (var j = 0; j < recent_events.show2.length && recent_events.show.length < show_max_recent_events; j++) {
-                    recent_events.show.push(recent_events.show2[j]);
+                for (let i = 0; i < recent_events.show2.length && recent_events.show.length < show_max_recent_events; i++) {
+                    recent_events.show.push(recent_events.show2[i]);
                 }
             }
+            if (recent_cars.show1.length > 0) {
+                for (let i = 0; i < recent_cars.show1.length && recent_cars.show.length < show_max_recent_cars; i++) {
+                    ArrayAddUniqueString(recent_cars.show, recent_cars.show1[i]);
+                }
+            } else {
+                for (let i = 0; i < recent_cars.show2.length && recent_cars.show.length < show_max_recent_cars; i++) {
+                    ArrayAddUniqueString(recent_cars.show, recent_cars.show2[i]);
+                }
+            }
+            // console.log(recent_cars);
             // console.log(recent_events);
-            let title = '<b> Recent: </b>';
             let brake = ' ';
             if (window_portrait) {
-                title = '';
+                title_cars = '';
                 brake = '<br>';
             }
-			recent_events_html += title +'<span class="fs90">'+ recent_events.show.join(brake) +'</span>';
+            recent_cars_html += '<span>'+ recent_cars.show.join(', ') +'</span>';
+			recent_events_html += '<span class="fs90">'+ recent_events.show.join(brake) +'</span>';
 		} else {
-			recent_events_html += '<b><span class="fs110"> No recent events. </b>';
+            recent_cars_html += '<b> No recent cars. </b>';
+			recent_events_html += '<b> No recent events. </b>';
 		}
         // console.log(recent_events_html);
-        return recent_events_html;
-    }
-    function getCarInfoById(carId, jsonData) {
-    const carData = {};
-    for (const car of jsonData) {
-        carData[car.car_id] = {
-            carNameAbbreviated: car.car_name_abbreviated,
-            firstCategory: car.categories[0]
+        return {
+            cars: recent_cars_html,
+            events: recent_events_html,
         };
     }
-    return carData[carId] || null;
-}
-    function render(data, author_info){
+    function getCarInfoById(carId, jsonData) {
+        const carData = {};
+        for (const car of jsonData) {
+            carData[car.car_id] = {
+                carNameAbbreviated: car.car_name_abbreviated,
+                firstCategory: car.categories[0]
+            };
+        }
+        return carData[carId] || null;
+    }
+    function render(data, author_wrap){
         const boxes = document.querySelectorAll('.loadingstats');
         boxes.forEach(box => { box.remove(); });
-        for (const driver_name of author_info){
-            let current_driver = driver_name.getElementsByTagName('a')[0].innerText.replace('Loading\n\n', '');
+        let idx = 0;
+        for (const author of authors){
+            let current_driver = author.querySelector('a').innerText;
+            let parentE = author.parentElement.parentElement.parentElement;
             let member = data[current_driver];
             let driver_stats = '';
             try {
-                driver_stats += '<div class="fs90 dispflex" >'+ driver_licenses(member) + '</div>';
+                let driver_recent = driver_recent_events(member);
                 driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span>';
-                if (show_max_recent_events > 0) { driver_stats += '<br><span class="fwn">'+ driver_recent_events(member) + '</span>'; };
+                driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
+                driver_stats += '<span id="recent_switch_'+ idx +'"> <b> Recent </b></span>';
+                driver_stats += '<span id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
+                if (show_max_recent_cars > 0) {
+                    driver_stats += driver_recent.cars;
+                } else {
+                    driver_stats += 'No recent cars!';
+                }
+                driver_stats += '</span><span id="recent_events_html_'+ idx +'" class="fwn" style="display: none;">';
+                if (show_max_recent_events > 0) {
+                    driver_stats += driver_recent.events;
+                } else {
+                    driver_stats += 'No recent events!';
+                }
+                driver_stats += '</span>';
             } catch(error) {
-                driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
+                driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" '+
+                    'href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
                 console.log(names);
                 console.log(error);
             }
             //Write HTML
-            driver_name.insertAdjacentHTML('afterend','<div class="fwb">'+ driver_stats +'</div><br>')
+            let inserE = author;
+            if (author.parentElement.parentElement.classList.contains('ConversationMessage')) {
+                inserE = author.parentElement.parentElement;
+            } else if (author.parentElement.parentElement.parentElement.classList.contains('CommentHeader')
+                    || author.parentElement.parentElement.parentElement.classList.contains('DiscussionHeader')) {
+                inserE = author.parentElement.parentElement.parentElement;
+            }
+            idx++;
+            inserE.insertAdjacentHTML('beforeend','<div id="driver_infos" class="fwb fs12" >'+ driver_stats +'</div>');
         }
-    }
+        // addEventListeners to buttons to switch recent cars and events
+        for (let i = 0; i <= idx; i++) {
+            let recent_switch = document.querySelector('#recent_switch_'+ i);
+            if (recent_switch) {
+                recent_switch.addEventListener('click', function() {
+                    let recent_events_html = document.querySelector('#recent_events_html_'+ i);
+                    let recent_cars_html = document.querySelector('#recent_cars_html_'+ i);
+                    if (recent_events_html.style.display == 'none') {
+                        recent_events_html.style.display = 'inline';
+                        recent_cars_html.style.display = 'none';
+                    } else {
+                        recent_events_html.style.display = 'none';
+                        recent_cars_html.style.display = 'inline';
+                    }
+                });
+            };
+        };
+    };
     fetch('https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+names.join(','))
         .then((response) => response.json())
-        .then((data) =>render(data, author_info));
+        .then((data) =>render(data, author_wrap));
     console.log('Fetched')
     let x = 0
     function addGlobalStyle(css) {
@@ -227,9 +298,9 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
         const style = document.createElement('style');
         style.innerHTML = css;
         head.appendChild(style);
-    }
+    };
     addGlobalStyle(`
-		.driver-link { color: inherit; font-size: inherit; /* text-decoration: underline; */ }
+		.driver-link { color: inherit !important; font-size: inherit !important; font-weight: normal !important; /* text-decoration: underline; */ }
 		.license-link { border-radius: 6px; font-weight: bold; text-align: center; line-height: 1; margin-right: 0.5em; padding-inline: 0.3em; }
 		.license-color-R { border: 1px solid #E1251B; background-color: #F3A8A4; color: #5D1214; }
 		.license-color-D { border: 1px solid #FF6600; background-color: #FFC299; color: #692C09; }
@@ -239,12 +310,17 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
 		.license-color-P { border: 1px solid #828287; background-color: #CDCDCF; color: #37373F; }
 		.ir-cat-svg { height: 1.4em; vertical-align: text-top; margin-right: 0.3em; }
         .recent-svg { height: 1.4em; vertical-align: text-top; margin-right: 0.3em; }
-		.fwb { font-weight:bold; }
-		.fwn { font-weight:normal; }
-		.fs90 { font-size:90%; }
-		.fs100 { font-size:100%; }
-		.fs110 { font-size:110%; }
+		.fwb { font-weight: bold; }
+		.fwn { font-weight: normal; }
+        .fs12 { font-size: 12px; }
+		.fs90 { font-size: 90%; }
+		.fs100 { font-size: 100%; }
+		.fs110 { font-size: 110%; }
+        .hide { display: none; }
 		.border777 { border: 1px solid #777; border-radius: 6px; }
         .dispflex {display: flex; }
+        .Item-Header.Item-Header { flex-wrap: wrap; }
+        .ConversationMessage { flex-wrap: wrap; }
+        #driver_infos { flex-basis: 100%; }
   `);
 })();

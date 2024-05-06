@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.15_2024-05-03
+// @version      1.16_2024-05-06
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -119,7 +119,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
             '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp"'+
             ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
-            ' class="driver-link"> Results </a> &nbsp; ';
+            ' class="driver-link"> Results </a> &nbsp;';
         if (!window_portrait) {
             infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> API </a> &nbsp; ';
         }
@@ -154,7 +154,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                     let event_type = recent_event.event_type.toLowerCase().replace(/\s/g, '');
                     let event_type1 = recent_event.event_type[0];
 					let event_dt = new Date(recent_event.start_time);
-					let event_dt_string = event_dt.toISOString().slice(2, 10);
+					let event_date2 = recent_event.start_time.slice(2, 10);
+                    let event_datetime = recent_event.start_time.slice(0, 16).replace(/T/g, ' ');
 					let event_pos = '';
                     switch (event_type) {
                         case 'race': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
@@ -164,8 +165,15 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                         case 'timetrial': ; break;
                     }
                     let tmp_html = '<a target="_blank" href="'+ url_subsession + recent_event.subsession_id +'" class="driver-link"> &nbsp;';
-					tmp_html += '<span title="'+ recent_event.event_type +' '+ event_dt_string +' '+ recent_event.car_name +' @ '+ recent_event.track.track_name +' '+ event_pos +'" class="border777">';
-                    tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +' '+ event_type1 +' '+ event_dt_string +' '+ carname + event_pos +'&nbsp</span></a>';
+                    if (window_portrait) {
+                        tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +
+                            ' <span class=""monospace>'+ event_type1 +' '+ event_date2 +' </span>'+ carname + event_pos +'&nbsp;</a>';
+                    } else {
+                        tmp_html += '<span title="'+ recent_event.event_type +' '+ event_date2 +' '+ recent_event.event_name +'" class="border777">';
+                        tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +
+                            ' <span class=""monospace>'+ event_type1 +' '+ event_datetime +' </span>'+ recent_event.car_name +
+                            ' @ '+ recent_event.track.track_name + event_pos +'&nbsp;</span></a>';
+                    }
                     recent_events[event_type].push(tmp_html);
                     if (show_recent_type[event_type] == 1) {
                         recent_events.show1.push(tmp_html);
@@ -198,13 +206,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             }
             // console.log(recent_cars);
             // console.log(recent_events);
-            let brake = ' ';
-            if (window_portrait) {
-                title_cars = '';
-                brake = '<br>';
-            }
             recent_cars_html += '<span>'+ recent_cars.show.join(', ') +'</span>';
-			recent_events_html += '<span class="fs90">'+ recent_events.show.join(brake) +'</span>';
+			recent_events_html += '<span class="fs90">'+ recent_events.show.join('<br>') +'</span>';
 		} else {
             recent_cars_html += '<b> No recent cars. </b>';
 			recent_events_html += '<b> No recent events. </b>';
@@ -238,20 +241,21 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 let driver_recent = driver_recent_events(member);
                 driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span>';
                 driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
-                driver_stats += '<span id="recent_switch_'+ idx +'"> <b> Recent </b></span>';
-                driver_stats += '<span id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
+                driver_stats += '<div class="dispflex">'
+                driver_stats += '<div id="recent_switch_'+ idx +'" class="noselect"> <b> Recent: </b>&nbsp;</div>';
+                driver_stats += '<div id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
                 if (show_max_recent_cars > 0) {
                     driver_stats += driver_recent.cars;
                 } else {
                     driver_stats += 'No recent cars!';
                 }
-                driver_stats += '</span><span id="recent_events_html_'+ idx +'" class="fwn" style="display: none;">';
+                driver_stats += '</div><div id="recent_events_html_'+ idx +'" class="fwn" style="display: none;">';
                 if (show_max_recent_events > 0) {
                     driver_stats += driver_recent.events;
                 } else {
                     driver_stats += 'No recent events!';
                 }
-                driver_stats += '</span>';
+                driver_stats += '</div>';
             } catch(error) {
                 driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" '+
                     'href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
@@ -309,14 +313,16 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
 		.license-color-A { border: 1px solid #006EFF; background-color: #99C5FF; color: #032F6F; }
 		.license-color-P { border: 1px solid #828287; background-color: #CDCDCF; color: #37373F; }
 		.ir-cat-svg { height: 1.4em; vertical-align: text-top; margin-right: 0.3em; }
-        .recent-svg { height: 1.4em; vertical-align: text-top; margin-right: 0.3em; }
+        .recent-svg { height: 1.4em; vertical-align: text-top; margin-inline: 0.2em; }
 		.fwb { font-weight: bold; }
 		.fwn { font-weight: normal; }
         .fs12 { font-size: 12px; }
 		.fs90 { font-size: 90%; }
 		.fs100 { font-size: 100%; }
 		.fs110 { font-size: 110%; }
+        .monospace { font-family: monospace; }
         .hide { display: none; }
+        .noselect { user-select: none; }
 		.border777 { border: 1px solid #777; border-radius: 6px; }
         .dispflex {display: flex; }
         .Item-Header.Item-Header { flex-wrap: wrap; }

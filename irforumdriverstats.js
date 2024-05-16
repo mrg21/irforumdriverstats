@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.16_2024-05-06
+// @version      1.17_2024-05-16
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -327,6 +327,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
         .dispflex {display: flex; }
         .Item-Header.Item-Header { flex-wrap: wrap; }
         .ConversationMessage { flex-wrap: wrap; }
+        .embedImage-img { width: inherit !important; height: auto; display: inline-flex; position: relative; margin-left: auto; margin-right: auto; max-width: 100%; max-height: none; }
+        .userContent.userContent .embedExternal-content { background-color: inherit !important; }
         #driver_infos { flex-basis: 100%; }
   `);
 })();

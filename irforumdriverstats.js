@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.17_2024-05-16
+// @version      1.17_2024-08-21
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -116,7 +116,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             '<b>'+ driver.member_info.club_name +' </b> &nbsp; '+
             '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
             'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
-            '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> Web profile </a> &nbsp; '+
+            '<a target="_blank" href="https://members-ng.iracing.com/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
+            '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
             '<a target="_blank" href="https://members.iracing.com/membersite/member/results.jsp"'+
             ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
             ' class="driver-link"> Results </a> &nbsp;';
@@ -154,8 +155,11 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                     let event_type = recent_event.event_type.toLowerCase().replace(/\s/g, '');
                     let event_type1 = recent_event.event_type[0];
 					let event_dt = new Date(recent_event.start_time);
+                    let event_date = recent_event.start_time.slice(0, 10);
 					let event_date2 = recent_event.start_time.slice(2, 10);
-                    let event_datetime = recent_event.start_time.slice(0, 16).replace(/T/g, ' ');
+                    let event_time = recent_event.start_time.slice(12, 16);
+                    let event_datetime = event_date + ' ' + event_time;
+                    let event_datetime2 = event_date2 + ' ' + event_time;
 					let event_pos = '';
                     switch (event_type) {
                         case 'race': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
@@ -169,9 +173,9 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                         tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +
                             ' <span class=""monospace>'+ event_type1 +' '+ event_date2 +' </span>'+ carname + event_pos +'&nbsp;</a>';
                     } else {
-                        tmp_html += '<span title="'+ recent_event.event_type +' '+ event_date2 +' '+ recent_event.event_name +'" class="border777">';
+                        tmp_html += '<span title="'+ recent_event.event_type +' '+ event_datetime2 +' '+ recent_event.event_name +'" class="border777">';
                         tmp_html += '<svg class="recent-svg"'+ svg_add[car.cat] +
-                            ' <span class=""monospace>'+ event_type1 +' '+ event_datetime +' </span>'+ recent_event.car_name +
+                            ' <span class=""monospace>'+ event_type1 +' '+ event_datetime2 +' </span>'+ recent_event.car_name +
                             ' @ '+ recent_event.track.track_name + event_pos +'&nbsp;</span></a>';
                     }
                     recent_events[event_type].push(tmp_html);
@@ -327,8 +331,6 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
         .dispflex {display: flex; }
         .Item-Header.Item-Header { flex-wrap: wrap; }
         .ConversationMessage { flex-wrap: wrap; }
-        .embedImage-img { width: inherit !important; height: auto; display: inline-flex; position: relative; margin-left: auto; margin-right: auto; max-width: 100%; max-height: none; }
-        .userContent.userContent .embedExternal-content { background-color: inherit !important; }
         #driver_infos { flex-basis: 100%; }
   `);
 })();

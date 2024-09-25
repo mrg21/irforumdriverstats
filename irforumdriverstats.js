@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.20_2024-09-16
+// @version      1.21_2024-09-25
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -171,14 +171,14 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                     let tmp_html = '<span class="driver-link"> &nbsp;';
                     if (window_portrait) {
                         tmp_html += '<span class="border777">'+
-                            '<svg class="recent-svg"'+ svg_add[car.cat] +
+                            '<svg class="recent-svg"'+ svg_add[car?.cat] +
                             ' <a target="_blank" class="driver-link monospace" href="https://members-ng.iracing.com/racing/profile?subsessionid='+ recent_event.subsession_id +'">'+
                             event_type1 +' '+ event_date2 +'</a>'+
                             '&nbsp; <a target="_blank" class="driver-link" href="https://members.iracing.com/membersite/member/EventResult.do?subsessionid='+ recent_event.subsession_id +'">'+
                             carname + event_pos +'&nbsp;</a> </span>';
                     } else {
                         tmp_html += '<span title="'+ recent_event.event_type +' '+ event_datetime2 +' '+ recent_event.event_name +'" class="border777">'+
-                            '<svg class="recent-svg"'+ svg_add[car.cat] +
+                            '<svg class="recent-svg"'+ svg_add[car?.cat] +
                             ' <a target="_blank" class="driver-link monospace" href="https://members-ng.iracing.com/racing/profile?subsessionid='+ recent_event.subsession_id +'">'+
                             event_type1 +' '+ event_datetime2 +'</a>'+
                             '&nbsp; <a target="_blank" class="driver-link" href="https://members.iracing.com/membersite/member/EventResult.do?subsessionid='+ recent_event.subsession_id +'">'+

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.21_2024-09-25
+// @version      1.22_2024-12-05
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -119,6 +119,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
             '<a target="_blank" href="https://members-ng.iracing.com/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
             '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
+            '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
             '<a target="_blank" href="https://members-ng.iracing.com/racing/results-stats/results"'+
             ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
             ' class="driver-link"> Results </a> &nbsp;';

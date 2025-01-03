@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.22_2024-12-05
+// @version      1.23_2025-01-03
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -250,9 +250,9 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             let driver_stats = '';
             try {
                 let driver_recent = driver_recent_events(member);
-                driver_stats += '<span class="fwn">'+ driver_infos(member) + '</span>';
+                driver_stats += '<span class="fwn theme-font-color">'+ driver_infos(member) + '</span>';
                 driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
-                driver_stats += '<div class="dispflex">'
+                driver_stats += '<div class="dispflex theme-font-color">'
                 driver_stats += '<div id="recent_switch_'+ idx +'" class="noselect"> <b> Recent: </b>&nbsp;</div>';
                 driver_stats += '<div id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
                 if (show_max_recent_cars > 0) {
@@ -331,6 +331,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
 		.fs90 { font-size: 90%; }
 		.fs100 { font-size: 100%; }
 		.fs110 { font-size: 110%; }
+        .theme-font-color { color:var(--theme-font-color); }
         .monospace { font-family: monospace; }
         .hide { display: none; }
         .noselect { user-select: none; }

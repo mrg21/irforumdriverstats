@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.23_2025-01-03
+// @version      1.24_2025-01-09
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -19,8 +19,9 @@ const show_recent_type = {
     race: 1, // 0: off, 1: on
     hosted: 1, // 0: off, 1: on, 2: only if no more major event
     league: 1, // 0: off, 1: on, 2: only if no more major event
-    timetrial: 1, // 0: off, 1: on, 2: only if no more major event
+    qualify: 2, // 0: off, 1: on, 2: only if no more major event
     practice: 2, // 0: off, 1: on, 2: only if no more major event
+    timetrial: 1, // 0: off, 1: on, 2: only if no more major event
 };
 
 const svg_add = {
@@ -110,21 +111,24 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
         return member_licenses.join(' ');
     }
     function driver_infos(driver){
-        let member_years = years_diff(new Date(driver.member_info.member_since))
-        let infos_html = ''+
-            // '<img src="https://ir-core-sites.iracing.com/members/member_images/world_cup/club_logos/club_'+
-            // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
-            '<b>'+ driver.member_info.club_name +' </b> &nbsp; '+
-            '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
-            'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
-            '<a target="_blank" href="https://members-ng.iracing.com/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
-            '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
-            '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
-            '<a target="_blank" href="https://members-ng.iracing.com/racing/results-stats/results"'+
-            ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
-            ' class="driver-link"> Results </a> &nbsp;';
-        if (!window_portrait) {
-            infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> API </a> &nbsp; ';
+        let infos_html = '';
+        if (driver?.member_info) {
+            let member_years = years_diff(new Date(driver.member_info.member_since));
+            infos_html = '' +
+                // '<img src="https://ir-core-sites.iracing.com/members/member_images/world_cup/club_logos/club_'+
+                // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
+                '<b>'+ driver?.member_info?.club_name +' </b> &nbsp; '+
+                '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
+                'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
+                '<a target="_blank" href="https://members-ng.iracing.com/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
+                '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
+                '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
+                '<a target="_blank" href="https://members-ng.iracing.com/racing/results-stats/results"'+
+                ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
+                ' class="driver-link"> Results </a> &nbsp;';
+            if (!window_portrait) {
+                infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> API </a> &nbsp; ';
+            }
         }
         return infos_html;
     }
@@ -132,11 +136,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
         let recent_events_html = '';
         let recent_cars_html = '';
         if (driver && driver.recent_events.length > 0) {
-            console.log(driver);
+            // console.log(driver);
 			let recent_events = {
 				race: [],
 				hosted: [],
 				league: [],
+                qualify: [],
 				practice: [],
 				timetrial: [],
                 show1: [],
@@ -162,12 +167,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                     let event_datetime = event_date + ' ' + event_time;
                     let event_datetime2 = event_date2 + ' ' + event_time;
 					let event_pos = '';
+                    // console.log(event_type);
                     switch (event_type) {
                         case 'race': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
                         case 'hosted': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
                         case 'league': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
-                        case 'practice': ; break;
-                        case 'timetrial': ; break;
+                        // 'qualify', 'practice', 'timetrial'
                     }
                     let tmp_html = '<span class="driver-link"> &nbsp;';
                     if (window_portrait) {
@@ -185,6 +190,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                             '&nbsp; <a target="_blank" class="driver-link" href="https://members.iracing.com/membersite/member/EventResult.do?subsessionid='+ recent_event.subsession_id +'">'+
                             recent_event.car_name +' @ '+ recent_event.track.track_name + event_pos +'&nbsp;</a> </span>';
                     }
+                    // console.log(tmp_html);
+                    recent_events[event_type] = recent_events[event_type] || [];
                     recent_events[event_type].push(tmp_html);
                     if (show_recent_type[event_type] == 1) {
                         recent_events.show1.push(tmp_html);
@@ -250,8 +257,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             let driver_stats = '';
             try {
                 let driver_recent = driver_recent_events(member);
-                driver_stats += '<span class="fwn theme-font-color">'+ driver_infos(member) + '</span>';
-                driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
+                if (member?.member_info) {
+                    driver_stats += '<span class="fwn theme-font-color">'+ driver_infos(member) + '</span>';
+                    driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
+                } else {
+                    console.log("Error: member.member_info is undefined or null for driver: " + JSON.stringify(current_driver));
+                }
                 driver_stats += '<div class="dispflex theme-font-color">'
                 driver_stats += '<div id="recent_switch_'+ idx +'" class="noselect"> <b> Recent: </b>&nbsp;</div>';
                 driver_stats += '<div id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';

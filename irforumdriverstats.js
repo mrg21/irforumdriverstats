@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.24_2025-01-09
+// @version      1.25_2025-01-11
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -120,7 +120,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 '<b>'+ driver?.member_info?.club_name +' </b> &nbsp; '+
                 '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
                 'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
-                '<a target="_blank" href="https://members-ng.iracing.com/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
+                '<a target="_blank" href="https://members-ng.iracing.com/web/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
                 '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
                 '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
                 '<a target="_blank" href="https://members-ng.iracing.com/racing/results-stats/results"'+
@@ -260,24 +260,24 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 if (member?.member_info) {
                     driver_stats += '<span class="fwn theme-font-color">'+ driver_infos(member) + '</span>';
                     driver_stats += '<div class="dispflex fs90">'+ driver_licenses(member) + '</div>';
+                    driver_stats += '<div class="dispflex theme-font-color">'
+                    driver_stats += '<div id="recent_switch_'+ idx +'" class="noselect"> <b> Recent: </b>&nbsp;</div>';
+                    driver_stats += '<div id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
+                    if (show_max_recent_cars > 0) {
+                        driver_stats += driver_recent.cars;
+                    } else {
+                        driver_stats += 'No recent cars!';
+                    }
+                    driver_stats += '</div><div id="recent_events_html_'+ idx +'" class="fwn" style="display: none;">';
+                    if (show_max_recent_events > 0) {
+                        driver_stats += driver_recent.events;
+                    } else {
+                        driver_stats += 'No recent events!';
+                    }
+                    driver_stats += '</div>';
                 } else {
                     console.log("Error: member.member_info is undefined or null for driver: " + JSON.stringify(current_driver));
                 }
-                driver_stats += '<div class="dispflex theme-font-color">'
-                driver_stats += '<div id="recent_switch_'+ idx +'" class="noselect"> <b> Recent: </b>&nbsp;</div>';
-                driver_stats += '<div id="recent_cars_html_'+ idx +'" class="fwn" style="display: inline;">';
-                if (show_max_recent_cars > 0) {
-                    driver_stats += driver_recent.cars;
-                } else {
-                    driver_stats += 'No recent cars!';
-                }
-                driver_stats += '</div><div id="recent_events_html_'+ idx +'" class="fwn" style="display: none;">';
-                if (show_max_recent_events > 0) {
-                    driver_stats += driver_recent.events;
-                } else {
-                    driver_stats += 'No recent events!';
-                }
-                driver_stats += '</div>';
             } catch(error) {
                 driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" '+
                     'href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';

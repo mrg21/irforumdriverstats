@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.27_2025-01-14
+// @version      1.29_2025-02-08
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -12,7 +12,15 @@
 
 // config
 const show_cpi = 1; // 0: off, 1: on
-const sort_licenses = 3; // 0: off, 1: iRating, 2: CPI, 3: iRating and CPI
+const sort_licenses = 1; // 0: off, 1: sort_lic_default, 2: iRating, 3: CPI, 4: iRating and CPI
+const sort_lic_default = {
+    sports_car: 5,
+    formula_car: 4,
+    oval: 3,
+    dirt_oval: 2,
+    dirt_road: 1,
+    undefined: 0,
+};
 const show_max_recent_events = 5;
 const show_max_recent_cars = 5;
 const show_recent_type = {
@@ -86,10 +94,12 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             license_class = license_class.replace('Pro', 'P');
             let lic_sort = 0;
             switch (sort_licenses) {
-                case 1: lic_sort = Number(driver.member_info.licenses[i].irating); break;
-                case 2: lic_sort = Number(driver.member_info.licenses[i].cpi); break;
-                case 3: lic_sort = 20 * Math.round(driver.member_info.licenses[i].cpi) + Number(driver.member_info.licenses[i].irating); break;
+                case 1: lic_sort = Number(sort_lic_default[driver.member_info.licenses[i].category]); break;
+                case 2: lic_sort = Number(driver.member_info.licenses[i].irating); break;
+                case 3: lic_sort = Number(driver.member_info.licenses[i].cpi); break;
+                case 4: lic_sort = 20 * Math.round(driver.member_info.licenses[i].cpi) + Number(driver.member_info.licenses[i].irating); break;
             }
+
             licenses.push({ 'lic_sort': lic_sort,
                             'category': driver.member_info.licenses[i].category,
                             'category_name': driver.member_info.licenses[i].category_name,
@@ -123,7 +133,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 '<a target="_blank" href="https://members-ng.iracing.com/web/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
                 '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
                 '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
-		'<a target="_blank" href="https://iracingdata.com/user/careerstats/'+ driver.cust_id +'" class="driver-link"> iRdata </a> &nbsp; '+
+				'<a target="_blank" href="https://iracingdata.com/user/careerstats/'+ driver.cust_id +'" class="driver-link"> iRdata </a> &nbsp; '+
+                '<a target="_blank" href="https://season-summary.dyczkowski.dev/driver/'+ driver.cust_id +'?category=sports_car" class="driver-link"> Season </a> &nbsp; '+
                 '<a target="_blank" href="https://members-ng.iracing.com/web/racing/results-stats/results"'+
                 ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
                 ' class="driver-link"> Results </a> &nbsp;';
@@ -143,8 +154,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
 				hosted: [],
 				league: [],
                 qualify: [],
-				practice: [],
-				timetrial: [],
+                practice: [],
+                timetrial: [],
                 show1: [],
                 show2: [],
                 show: [],
@@ -158,16 +169,16 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
 			driver.recent_events.forEach((recent_event, index) => {
 				if (recent_event.subsession_id > 0) {
                     let car = cars_dict[recent_event.car_id];
-					let carname = (car?.make || recent_event.car_name) + ' ' + (car?.abbr || '');
+                    let carname = (car?.make || recent_event.car_name) + ' ' + (car?.abbr || '');
                     let event_type = recent_event.event_type.toLowerCase().replace(/\s/g, '');
                     let event_type1 = recent_event.event_type[0];
-					let event_dt = new Date(recent_event.start_time);
+                    let event_dt = new Date(recent_event.start_time);
                     let event_date = recent_event.start_time.slice(0, 10);
-					let event_date2 = recent_event.start_time.slice(2, 10);
+                    let event_date2 = recent_event.start_time.slice(2, 10);
                     let event_time = recent_event.start_time.slice(12, 16);
                     let event_datetime = event_date + ' ' + event_time;
                     let event_datetime2 = event_date2 + ' ' + event_time;
-					let event_pos = '';
+                    let event_pos = '';
                     // console.log(event_type);
                     switch (event_type) {
                         case 'race': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;

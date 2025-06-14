@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.29_2025-02-08
+// @version      1.30_2025-06-14
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -127,7 +127,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             infos_html = '' +
                 // '<img src="https://ir-core-sites.iracing.com/members/member_images/world_cup/club_logos/club_'+
                 // driver.member_info.club_id.toString().padStart(3, '0') +'_long_0128_web.png" alt="'+ driver.member_info.club_name +'" height="24"> &nbsp; '+
-                '<b>'+ driver?.member_info?.club_name +' </b> &nbsp; '+
+                '<b>'+ driver?.member_info?.country +' </b> &nbsp; '+
                 '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
                 'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
                 '<a target="_blank" href="https://members-ng.iracing.com/web/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+

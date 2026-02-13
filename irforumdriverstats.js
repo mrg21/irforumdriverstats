@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      1.31_2025-08-21
+// @version      2.00_2026-02-13
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=iracing.com
 // @downloadURL  https://raw.githubusercontent.com/mrg21/irforumdriverstats/main/irforumdriverstats.js
 // @updateURL    https://raw.githubusercontent.com/mrg21/irforumdriverstats/main/irforumdriverstats.js
 // ==/UserScript==
@@ -45,6 +45,9 @@ let window_portrait = false;
 if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (document.documentElement.clientHeight, window.innerHeight || 0)) {
     window_portrait = true;
 };
+
+// New API endpoint
+const API_ENDPOINT = 'https://ncv5ut7oz0.execute-api.eu-central-1.amazonaws.com/dev/drivers';
 
 'use strict';
 (() => {
@@ -140,7 +143,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
                 ' class="driver-link"> Results </a> &nbsp;';
             if (!window_portrait) {
-                infos_html += '<a target="_blank" href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ driver.member_info.display_name +'" class="driver-link"> API </a> &nbsp; ';
+                infos_html += '<a target="_blank" href="'+ API_ENDPOINT +'?names='+ encodeURIComponent(driver.member_info.display_name) +'" class="driver-link"> API </a> &nbsp; ';
             }
         }
         return infos_html;
@@ -213,7 +216,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                         recent_events.show2.push(tmp_html);
                         ArrayAddUniqueString(recent_cars.show2, carname);
                     }
-				}
+                }
 			});
             // console.log(driver.member_info.display_name);
             // console.log(recent_events.show1.length);
@@ -293,7 +296,7 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
                 }
             } catch(error) {
                 driver_stats = '<span class="fs90">Driver stats error! <a target="_blank" '+
-                    'href="https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+ current_driver +'"> JSON </a></span>';
+                    'href="'+ API_ENDPOINT +'?names='+ encodeURIComponent(current_driver) +'"> JSON </a></span>';
                 console.log(names);
                 console.log(error);
             }
@@ -326,7 +329,8 @@ if ((document.documentElement.clientWidth, window.innerWidth || 0) * 1.3 < (docu
             };
         };
     };
-    fetch('https://66736j0um9.execute-api.eu-central-1.amazonaws.com/0-3-1?names='+names.join(','))
+    // Use new API endpoint
+    fetch(API_ENDPOINT +'?names='+names.join(','))
         .then((response) => response.json())
         .then((data) =>render(data, author_wrap));
     console.log('Fetched')

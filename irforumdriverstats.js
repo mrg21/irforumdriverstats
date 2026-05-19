@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      2.01_2026-02-14
+// @version      2.02_2026-05-19
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -55,7 +55,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 // Wrap everything in an IIFE to avoid global scope conflicts
 (function() {
     'use strict';
-    
+
 const cache = new Map();
 
 // Initialization protection
@@ -94,34 +94,34 @@ window.matchMedia("(orientation: portrait)").addEventListener('change', (e) => {
 // ===== ROBUST NAME EXTRACTION =====
 function getDriverName(author) {
     // Try multiple strategies to get the driver name
-    let nameElement = author.getElementsByTagName('a')[0] 
+    let nameElement = author.getElementsByTagName('a')[0]
         || author.querySelector('a')
         || author.querySelector('.Username a')
         || author.querySelector('[data-username]');
-    
+
     if (!nameElement) {
         console.log('No name element found in author element');
         return null;
     }
-    
+
     // Try multiple ways to extract the name
-    let rawName = nameElement.innerText 
-        || nameElement.textContent 
-        || nameElement.getAttribute('data-username') 
+    let rawName = nameElement.innerText
+        || nameElement.textContent
+        || nameElement.getAttribute('data-username')
         || '';
-    
+
     // Clean up the name
     const cleanedName = rawName
         .replace(/Loading\s*\n*\s*/g, '')
         .replace(/\s+/g, ' ')
         .trim();
-    
+
     // Validate name
     if (!cleanedName || cleanedName.length < 2) {
         console.log('Invalid name extracted:', cleanedName);
         return null;
     }
-    
+
     return cleanedName;
 }
 
@@ -154,7 +154,7 @@ function ArrayAddUniqueString(array, String) {
 function driver_licenses(driver){
     let license = '';
     let licenses = [];
-    
+
     for (let i = 0; i < driver.member_info.licenses.length; i++){
         let license_class = driver.member_info.licenses[i].group_name.replace('Class ', '')
         license_class = license_class.replace('Rookie', 'R');
@@ -196,7 +196,7 @@ function driver_infos(driver){
             '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
             'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
             '<a target="_blank" href="https://members-ng.iracing.com/web/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
-            '<a target="_blank" href="https://www.irstats.net/driver/'+ driver.cust_id +'" class="driver-link"> iRStats </a> &nbsp; '+
+            '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
             '<a target="_blank" href="https://iracingdata.com/user/careerstats/'+ driver.cust_id +'" class="driver-link"> iRdata </a> &nbsp; '+
             '<a target="_blank" href="https://season-summary.dyczkowski.dev/driver/'+ driver.cust_id +'?category=sports_car" class="driver-link"> SSummary </a> &nbsp; '+
             '<a target="_blank" href="https://simracer-tools.com/seasonstandings/?driver='+ driver.cust_id +'&stats=1" class="driver-link"> SStandings </a> &nbsp; '+
@@ -244,13 +244,13 @@ function driver_recent_events(driver, cars_dict) {
                 let event_datetime = event_date + ' ' + event_time;
                 let event_datetime2 = event_date2 + ' ' + event_time;
                 let event_pos = '';
-                
+
                 switch (event_type) {
                     case 'race': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
                     case 'hosted': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
                     case 'league': event_pos = ' S'+ (recent_event.starting_position+1) + ' F'+ (recent_event.finish_position+1); break;
                 }
-                
+
                 let tmp_html = '<span class="driver-link"> &nbsp;';
                 if (window_portrait) {
                     tmp_html += '<span class="border777">'+
@@ -267,7 +267,7 @@ function driver_recent_events(driver, cars_dict) {
                         '&nbsp; <a target="_blank" class="driver-link" href="https://members.iracing.com/membersite/member/EventResult.do?subsessionid='+ recent_event.subsession_id +'">'+
                         recent_event.car_name +' @ '+ recent_event.track.track_name + event_pos +'&nbsp;</a> </span>';
                 }
-                
+
                 recent_events[event_type] = recent_events[event_type] || [];
                 recent_events[event_type].push(tmp_html);
                 if (show_recent_type[event_type] == 1) {
@@ -279,7 +279,7 @@ function driver_recent_events(driver, cars_dict) {
                 }
             }
         });
-        
+
         if (recent_events.show1.length > 0) {
             for (let i = 0; i < recent_events.show1.length && recent_events.show.length < show_max_recent_events; i++) {
                 recent_events.show.push(recent_events.show1[i]);
@@ -298,14 +298,14 @@ function driver_recent_events(driver, cars_dict) {
                 ArrayAddUniqueString(recent_cars.show, recent_cars.show2[i]);
             }
         }
-        
+
         recent_cars_html += '<span>'+ recent_cars.show.join(', ') +'</span>';
         recent_events_html += '<span class="fs90">'+ recent_events.show.join('<br>') +'</span>';
     } else {
         recent_cars_html += '<b> No recent cars. </b>';
         recent_events_html += '<b> No recent events. </b>';
     }
-    
+
     return {
         cars: recent_cars_html,
         events: recent_events_html,
@@ -317,7 +317,7 @@ function insertErrorMessage(author, driverName) {
     const errorHTML = '<span class="error-message fs90">Stats unavailable. ' +
         '<a target="_blank" href="' + API_ENDPOINT + '?names=' + encodeURIComponent(driverName) + '" class="driver-link">' +
         'Try API</a></span>';
-    
+
     author.insertAdjacentHTML('beforeend', '<div class="driver-stats-error fwb fs12">' + errorHTML + '</div>');
 }
 
@@ -329,10 +329,10 @@ function renderDriver(author, driverName, driverData, cars_dict, idx) {
             insertErrorMessage(author, driverName);
             return;
         }
-        
+
         let driver_stats = '';
         let driver_recent = driver_recent_events(driverData, cars_dict);
-        
+
         driver_stats += '<span class="fwn theme-font-color">'+ driver_infos(driverData) + '</span>';
         driver_stats += '<div class="dispflex fs90">'+ driver_licenses(driverData) + '</div>';
         driver_stats += '<div class="dispflex theme-font-color">'
@@ -351,7 +351,7 @@ function renderDriver(author, driverName, driverData, cars_dict, idx) {
         }
         driver_stats += '</div>';
         driver_stats += '</div>'; // Close dispflex
-        
+
         // Find correct insertion point
         let inserE = author;
         if (author.parentElement.parentElement.classList.contains('ConversationMessage')) {
@@ -360,9 +360,9 @@ function renderDriver(author, driverName, driverData, cars_dict, idx) {
                 || author.parentElement.parentElement.parentElement.classList.contains('DiscussionHeader')) {
             inserE = author.parentElement.parentElement.parentElement;
         }
-        
+
         inserE.insertAdjacentHTML('beforeend','<div id="driver_infos" class="fwb fs12" >'+ driver_stats +'</div>');
-        
+
     } catch(error) {
         console.error('Error rendering driver:', driverName, error);
         insertErrorMessage(author, driverName);
@@ -398,45 +398,45 @@ function init() {
         console.log('Script already initialized');
         return;
     }
-    
+
     // Check if stats are already loaded
     if (document.querySelector('.loadingstats') || document.querySelector('#driver_infos')) {
         console.log('Stats already loaded on page');
         scriptInitialized = true;
         return;
     }
-    
+
     scriptInitialized = true;
     console.log('Initializing iR Forum user stats script...');
-    
+
     let authors = document.getElementsByClassName('Author');
-    
+
     if (authors.length === 0) {
         console.log('No authors found on page');
         return;
     }
-    
+
     let cars_dict = cars_json2dict(cars_json);
     let driverMap = new Map(); // Map driver names to author elements
     let names = [];
-    
+
     // Collect all driver names and their author elements
     for (const author of authors) {
         const driverName = getDriverName(author);
-        
+
         if (!driverName) {
             console.log('Could not extract driver name from author element');
             continue;
         }
-        
+
         // Add loading indicator
-        author.insertAdjacentHTML('beforeend', 
+        author.insertAdjacentHTML('beforeend',
             '<div class="loadingstats fwb">' +
             '<div class="loading-bar-container">' +
             '<div class="loading-bar"></div>' +
             '</div>' +
             '</div>');
-        
+
         // Store author element(s) for this driver
         if (!driverMap.has(driverName)) {
             driverMap.set(driverName, []);
@@ -444,21 +444,21 @@ function init() {
         }
         driverMap.get(driverName).push(author);
     }
-    
+
     // Remove duplicates
     names = [...new Set(names)];
-    
+
     if (names.length === 0) {
         console.log('No valid driver names found');
         return;
     }
-    
+
     console.log('Found drivers:', names);
-    
+
     // Phase 1: Check cache for all names
     const uncachedNames = [];
     const cachedData = {};
-    
+
     names.forEach(name => {
         const cached = getCached(name);
         if (cached) {
@@ -468,7 +468,7 @@ function init() {
             uncachedNames.push(name);
         }
     });
-    
+
     // Phase 2: Render cached drivers immediately
     let idx = 0;
     Object.entries(cachedData).forEach(([driverName, driverData]) => {
@@ -478,17 +478,17 @@ function init() {
                 // Remove loading indicator
                 const loadingBox = author.querySelector('.loadingstats');
                 if (loadingBox) loadingBox.remove();
-                
+
                 renderDriver(author, driverName, driverData, cars_dict, idx);
                 idx++;
             });
         }
     });
-    
+
     // Phase 3: Fetch uncached drivers in a batch
     if (uncachedNames.length > 0) {
         console.log('Fetching from API:', uncachedNames);
-        
+
         fetch(API_ENDPOINT + '?names=' + uncachedNames.join(','))
             .then((response) => {
                 if (!response.ok) {
@@ -498,12 +498,12 @@ function init() {
             })
             .then((data) => {
                 console.log('API data received');
-                
+
                 // Cache new data
                 Object.entries(data).forEach(([name, driverData]) => {
                     setCached(name, driverData);
                 });
-                
+
                 // Render new drivers
                 Object.entries(data).forEach(([driverName, driverData]) => {
                     const authorElements = driverMap.get(driverName);
@@ -512,19 +512,19 @@ function init() {
                             // Remove loading indicator
                             const loadingBox = author.querySelector('.loadingstats');
                             if (loadingBox) loadingBox.remove();
-                            
+
                             renderDriver(author, driverName, driverData, cars_dict, idx);
                             idx++;
                         });
                     }
                 });
-                
+
                 // Attach event listeners for all drivers
                 attachEventListeners(idx);
             })
             .catch((error) => {
                 console.error('API fetch error:', error);
-                
+
                 // Show error for all uncached drivers
                 uncachedNames.forEach(driverName => {
                     const authorElements = driverMap.get(driverName);
@@ -533,7 +533,7 @@ function init() {
                             // Remove loading indicator
                             const loadingBox = author.querySelector('.loadingstats');
                             if (loadingBox) loadingBox.remove();
-                            
+
                             insertErrorMessage(author, driverName);
                         });
                     }
@@ -597,26 +597,26 @@ addGlobalStyle(`
     .ConversationMessage { flex-wrap: wrap; }
     #driver_infos { flex-basis: 100%; }
     .error-message { color: #cc6666; font-style: italic; }
-    
+
     /* Animated loading bar */
-    .loading-bar-container { 
-        width: 100%; 
-        height: 4px; 
-        background-color: #333; 
-        border-radius: 2px; 
-        overflow: hidden; 
-        margin: 2px 0; 
+    .loading-bar-container {
+        width: 100%;
+        height: 4px;
+        background-color: #333;
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 2px 0;
     }
-    .loading-bar { 
-        height: 100%; 
-        background: linear-gradient(90deg, #006EFF, #33CC00); 
-        width: 0%; 
-        animation: loadingProgress 10s linear forwards; 
-        border-radius: 2px; 
+    .loading-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #006EFF, #33CC00);
+        width: 0%;
+        animation: loadingProgress 10s linear forwards;
+        border-radius: 2px;
     }
-    @keyframes loadingProgress { 
-        from { width: 0%; } 
-        to { width: 100%; } 
+    @keyframes loadingProgress {
+        from { width: 0%; }
+        to { width: 100%; }
     }
     .loadingstats { min-height: 20px; }
 `);

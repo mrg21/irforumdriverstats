@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iR Forum user stats
 // @namespace    http://tampermonkey.net/
-// @version      2.03_2026-07-02
+// @version      2.04_2026-09-15
 // @description  Show user stats in the iRacing forum
 // @author       MR
 // @match        https://forums.iracing.com/*
@@ -196,11 +196,11 @@ function driver_infos(driver){
             '<span title="Member since: '+ driver.member_info.member_since +'">Member: '+ member_years +' years</span> &nbsp; '+
             'Followers: '+ driver.follow_counts.followers +'/'+ driver.follow_counts.follows +' &nbsp; '+
             '<a target="_blank" href="https://members-ng.iracing.com/web/racing/profile?cust_id='+ driver.cust_id +'" class="driver-link"> Profile </a> &nbsp; '+
+            '<a target="_blank" href="https://irstats.com/driver/'+ driver.cust_id +'" class="driver-link"> irstats </a> &nbsp; '+
             '<a target="_blank" href="https://irecap.racing/my_last_races.php?custid='+ driver.cust_id +'" class="driver-link"> irecap </a> &nbsp; '+
             '<a target="_blank" href="https://nyoom.app/search/'+ driver.cust_id +'" class="driver-link"> NYOOM </a> &nbsp; '+
             '<a target="_blank" href="https://iracingdata.com/user/careerstats/'+ driver.cust_id +'" class="driver-link"> iRdata </a> &nbsp; '+
             '<a target="_blank" href="https://season-summary.dyczkowski.dev/driver/'+ driver.cust_id +'?category=sports_car" class="driver-link"> SSummary </a> &nbsp; '+
-            '<a target="_blank" href="https://simracer-tools.com/seasonstandings/?driver='+ driver.cust_id +'&stats=1" class="driver-link"> SStandings </a> &nbsp; '+
             '<a target="_blank" href="https://members-ng.iracing.com/web/racing/results-stats/results"'+
             ' onclick="navigator.clipboard.writeText('+ driver.cust_id +');"'+
             ' class="driver-link"> Results </a> &nbsp;';
